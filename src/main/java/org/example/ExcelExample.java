@@ -1,10 +1,14 @@
 package org.example;
 
+import org.apache.commons.math3.analysis.integration.SimpsonIntegrator;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ExcelExample {
     public static void main(String[] args) {
@@ -15,14 +19,50 @@ public class ExcelExample {
 
             for (Row row : sheet) {
                 for (Cell cell : row) {
-                    System.out.print(cell.toString() + "\t");
+                    switch (cell.getCellType()) {
+                        case NUMERIC :
+                            if (DateUtil.isCellDateFormatted(cell)) {
+                                Date dateValue = cell.getDateCellValue();
+                                DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+                                String formattedDate = dateFormat.format(dateValue);
+                                System.out.print (formattedDate + "\t");
+
+                            } else {
+                                double numericValue = cell.getNumericCellValue();
+                                if (numericValue == Math.floor(numericValue)) {
+                                    int intValue = (int) numericValue;
+                                    System.out.print(intValue + "\t");
+                                } else {
+                                    System.out.print(numericValue + "\t");
+                                }
+                            }
+                            break;
+                        case STRING:
+                            String stringValue = cell.getStringCellValue();
+                            System.out.print(stringValue + "\t");
+                            break;
+                        case BOOLEAN:
+                            boolean booleanValue = cell.getBooleanCellValue();
+                            System.out.print(booleanValue + "\t");
+                            break;
+                        case FORMULA:
+                            String formulaValue = cell.getCellFormula();
+                            System.out.print(formulaValue + "\t");
+                            break;
+                        case BLANK:
+                            System.out.print("\t");
+                            break;
+                        default:
+                            System.out.print("\t");
+                            break;
+                    }
                 }
                 System.out.println();
             }
 
             file.close();
             System.out.println("success");
-             
+
         } catch (IOException e) {
             e.printStackTrace();
         }
